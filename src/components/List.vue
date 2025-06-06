@@ -12,12 +12,14 @@
       </v-col>
       <v-col cols="3">
         <div class="d-flex justify-end">
-          <v-btn icon density="comfortable" color="white" class="custom-btn-bg">
+          <v-btn icon density="comfortable" color="white" class="custom-btn-bg" @click="handleNewHabit">
             <v-icon>mdi-plus</v-icon>
           </v-btn>
         </div>
       </v-col>
     </v-row>
+
+    <new-habit :showNewHabit="showNewHabit"></new-habit>
 
     <div class="mt-4">
       <Habit />
@@ -28,10 +30,21 @@
 
 <script>
 import Habit from './Habit.vue';
+import NewHabit from './NewHabit.vue';
 
 export default {
   name: 'ListApp',
-  components: { Habit, }
+  components: { Habit, NewHabit, },
+  data() {
+    return {
+      showNewHabit: true,
+    }
+  },
+  methods: {
+    handleNewHabit() {
+      this.showNewHabit = true;
+    },
+  },
 }
 </script>
 
