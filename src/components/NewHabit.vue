@@ -1,17 +1,19 @@
 <template>
-    <v-row v-if="showNewHabit">
-        <v-col cols="3">
+    <v-row v-if="showNewHabit" justify="center" align="center">
+        <v-col cols="2">
             <SelectIcon></SelectIcon>
         </v-col>
-        <v-col cols="6">
+        <v-col cols="8">
             <v-text-field
-                label="Plain"
-                placeholder="Placeholder"
+                class="mt-4"
+                label="New Habit"
+                placeholder="Type your new habit"
                 variant="plain"
+                v-model="habit"
             ></v-text-field>
         </v-col>
-        <v-col cols="3">
-            <v-btn icon density="comfortable" color="white" @click="handleNewHabit">
+        <v-col cols="2">
+            <v-btn icon density="comfortable" class="custom-btn-bg" @click="handleNewHabit">
                 <v-icon>mdi-plus</v-icon>
             </v-btn>
         </v-col>
@@ -19,11 +21,13 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
 import SelectIcon from './SelectIcon.vue'
 
 export default {
     name: 'NewHabit',
     components: { SelectIcon },
+    emits: ['new-habit'],
     props: {
         showNewHabit: {
             type: Boolean,
@@ -31,10 +35,31 @@ export default {
             required: true
         }
     },
+    data() {
+        return {
+            habit: ''
+        }
+    },
     methods: {
+        ...mapActions([
+            'createHabit'
+        ]),
         handleNewHabit() {
-            console.log('oi')
+            console.log('oiii', this.habit)
+            this.createHabit(this.habit);
+            this.$emit('new-habit');
         }
     }
 }
 </script>
+
+<style scoped>
+.custom-btn-bg {
+  background: #ececec !important;
+}
+
+.custom-btn-bg:hover {
+  background: #1976d2 !important;
+  color: white !important;
+}
+</style>

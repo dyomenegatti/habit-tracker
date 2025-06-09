@@ -11,15 +11,18 @@
         <div class="text-subtitle-2">In progress today (1)</div>
       </v-col>
       <v-col cols="3">
-        <div class="d-flex justify-end">
-          <v-btn icon density="comfortable" color="white" class="custom-btn-bg" @click="handleNewHabit">
+        <div class="d-flex justify-end" v-if="!showNewHabit">
+          <v-btn icon density="comfortable" color="white" class="custom-btn-bg" @click="showInputNewHabit">
             <v-icon>mdi-plus</v-icon>
           </v-btn>
         </div>
       </v-col>
     </v-row>
 
-    <new-habit :showNewHabit="showNewHabit"></new-habit>
+    <new-habit 
+      :showNewHabit="showNewHabit"
+      @new-habit="handleNewHabit"
+    ></new-habit>
 
     <div class="mt-4">
       <Habit />
@@ -37,12 +40,16 @@ export default {
   components: { Habit, NewHabit, },
   data() {
     return {
-      showNewHabit: true,
+      showNewHabit: false,
     }
   },
   methods: {
-    handleNewHabit() {
+    showInputNewHabit() {
       this.showNewHabit = true;
+    },
+    handleNewHabit() {
+      console.log('oi');
+      this.showNewHabit = false;
     },
   },
 }
