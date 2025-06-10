@@ -56,6 +56,7 @@
   import * as mdiIcons from '@mdi/js';
   
   export default {
+    emits: ['selected-icon'],
     data() {
       return {
         dialog: false,
@@ -120,6 +121,7 @@
       selectIcon(icon) {
         this.selectedIcon = icon;
         this.dialog = false;
+        this.$emit('selected-icon', this.selectedIcon);
       }
     }
   };

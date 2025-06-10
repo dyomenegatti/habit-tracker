@@ -1,7 +1,9 @@
 <template>
     <v-row v-if="showNewHabit" justify="center" align="center">
         <v-col cols="2">
-            <SelectIcon></SelectIcon>
+            <SelectIcon
+                @selected-icon="onSelectedIcon"
+            ></SelectIcon>
         </v-col>
         <v-col cols="8">
             <v-text-field
@@ -9,7 +11,7 @@
                 label="New Habit"
                 placeholder="Type your new habit"
                 variant="plain"
-                v-model="habit"
+                v-model="habitDescription"
             ></v-text-field>
         </v-col>
         <v-col cols="2">
@@ -37,16 +39,25 @@ export default {
     },
     data() {
         return {
-            habit: ''
+            habitDescription: '',
+            habitIcone: '',
         }
     },
     methods: {
         ...mapActions([
-            'createHabit'
+            'saveHabit'
         ]),
+        onSelectedIcon(value) {
+            this.habitIcone = value;
+        },
         handleNewHabit() {
-            console.log('oiii', this.habit)
-            this.createHabit(this.habit);
+            console.log('habitDescription', this.habitDescription)
+            console.log('habitIcone', this.habitIcone)
+            this.saveHabit({
+                name: this.habitDescription,
+                icon: this.habitIcone,
+                checked: false
+            });
             this.$emit('new-habit');
         }
     }

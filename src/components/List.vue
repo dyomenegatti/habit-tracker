@@ -25,13 +25,25 @@
     ></new-habit>
 
     <div class="mt-4">
-      <Habit />
+      <Habit 
+        :habits="habits"
+      />
+
+      <div  
+        v-if="emptyHabits"
+        justify="center" 
+        align="center" 
+        class="font-weight-thin font-italic"
+      >
+        Você ainda não adicionou nenhum hábito!
+      </div>
     </div>
 
   </v-sheet>
 </template>
 
 <script>
+import { mapActions, mapGetters } from 'vuex';
 import Habit from './Habit.vue';
 import NewHabit from './NewHabit.vue';
 
@@ -43,7 +55,24 @@ export default {
       showNewHabit: false,
     }
   },
+  created() {
+    this.loadHabits();
+  },
+  computed: {
+    ...mapGetters([
+      'allHabits'
+    ]),
+    habits() {
+      return this.allHabits;
+    },
+    emptyHabits() {
+      return Array.isArray(this.habits) && this.habits.length === 0;
+    }
+  },
   methods: {
+    ...mapActions([
+      'loadHabits',
+    ]),
     showInputNewHabit() {
       this.showNewHabit = true;
     },
