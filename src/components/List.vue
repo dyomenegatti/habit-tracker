@@ -8,7 +8,7 @@
 
     <v-row justify="center" align="center">
       <v-col cols="9">
-        <div class="text-subtitle-2">In progress today (1)</div>
+        <div class="text-subtitle-2">In progress today ({{ inProgress }})</div>
       </v-col>
       <v-col cols="3">
         <div class="d-flex justify-end" v-if="!showNewHabit">
@@ -27,6 +27,8 @@
     <div class="mt-4">
       <Habit 
         :habits="habits"
+        @update-habit="saveHabit"
+        @delete-habit="deleteHabit"
       />
 
       <div  
@@ -60,26 +62,34 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'allHabits'
+      'allHabits',
     ]),
     habits() {
       return this.allHabits;
     },
     emptyHabits() {
       return Array.isArray(this.habits) && this.habits.length === 0;
+    },
+    inProgress() {
+      const habitInProgress = this.habits.filter(item => item.checked === false).length
+      
+      return habitInProgress;
     }
   },
   methods: {
     ...mapActions([
       'loadHabits',
+      'saveHabit',
     ]),
     showInputNewHabit() {
       this.showNewHabit = true;
     },
     handleNewHabit() {
-      console.log('oi');
       this.showNewHabit = false;
     },
+    deleteHabit(habit) {
+      this.$store.dispatch('deleteHabit', habit.id);
+    }
   },
 }
 </script>

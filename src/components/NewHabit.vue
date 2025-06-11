@@ -51,14 +51,13 @@ export default {
             this.habitIcone = value;
         },
         handleNewHabit() {
-            console.log('habitDescription', this.habitDescription)
-            console.log('habitIcone', this.habitIcone)
             this.saveHabit({
                 name: this.habitDescription,
                 icon: this.habitIcone,
                 checked: false
             });
             this.$emit('new-habit');
+            this.habitDescription = '';
         }
     }
 }

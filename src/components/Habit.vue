@@ -14,8 +14,10 @@
             class="ma-0"
             color="primary"
             hide-details
-            v-model="habit.checked"
+            :input-value="habit.checked"
+            @change="onCheckChange(habit, $event)"
           ></v-checkbox>
+          <v-icon @click="onDeleteHabit(habit)">mdi-delete</v-icon>
         </div>
       </v-col>
     </v-row>
@@ -25,17 +27,18 @@
 <script>
 export default {
   name: 'HabitApp',
+  emits: [ 'update-habit', 'delete-habit' ],
   props: {
     habits: {
       type: Array,
     }
   },
-  data() {
-    return {
-      // habits: [
-      //   { id: 0, name: 'Drink water', icon: 'mdi-water', checked: false },
-      //   { id: 0, name: 'Follow the diet', icon: 'mdi-food', checked: true },
-      // ]
+  methods: {
+    onCheckChange(habit, checked) {
+      this.$emit('update-habit', { ...habit, checked });
+    },
+    onDeleteHabit(habit) {
+      this.$emit('delete-habit', habit);
     }
   }
 }

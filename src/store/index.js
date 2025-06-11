@@ -17,9 +17,11 @@ export default new Vuex.Store({
     ADD_HABIT(state, habit) {
       state.habits.push(habit);
     },
-    UPDATE_HABIT(state, updated) {
-      const index = state.habits.findIndex(item => item.id === updated.id);
-      if(index !== -1) state.habits.slice(index, 1, updated);
+    UPDATE_HABIT(state, updatedHabit) {
+      const index = state.habits.findIndex(item => item.id === updatedHabit.id);
+      if (index !== -1) {
+        Vue.set(state.habits, index, updatedHabit);
+      }
     },
     DELETE_HABIT(state, id) {
       state.habits = state.habits.filter(item => item.id !== id);
@@ -31,10 +33,13 @@ export default new Vuex.Store({
       commit('SET_HABITS', habits);
     },
     saveHabit({ commit, state }, habit) {
-      if(habit.id) {
+      const index = state.habits.findIndex(item => item.id === habit.id);
+      if (index !== -1) {
         commit('UPDATE_HABIT', habit);
       } else {
-        habit.id = Date.now();
+        let lastId = parseInt(localStorage.getItem('lastHabitId') || '0', 10);
+        habit.id = lastId + 1;
+        localStorage.setItem('lastHabitId', habit.id);
         commit('ADD_HABIT', habit);
       }
       localStorage.setItem('habits', JSON.stringify(state.habits));
