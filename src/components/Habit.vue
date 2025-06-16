@@ -4,7 +4,16 @@
       <v-col cols="9">
         <div class="d-flex" justify="center" align="center">
           <v-icon color="primary">{{ habit.icon }}</v-icon>
-          <span class="body-1 pl-2">{{ habit.name }}</span>
+          <span class="body-1 pl-2" v-if="editIndex !== index">{{ habit.name }}</span>
+          <v-text-field
+            class="ml-4"
+            variant="plain"
+            v-model="habit.name"
+            v-if="editIndex === index"
+            @keydown.enter="saveEdit(habit, index)"
+            @blur="cancelEdit"
+            autofocus
+          ></v-text-field>
         </div>
       </v-col>
 
@@ -17,6 +26,7 @@
             :input-value="habit.checked"
             @change="onCheckChange(habit, $event)"
           ></v-checkbox>
+          <v-icon @click="startEdit(index)">mdi-pencil</v-icon>
           <v-icon @click="onDeleteHabit(habit)">mdi-delete</v-icon>
         </div>
       </v-col>
@@ -27,15 +37,30 @@
 <script>
 export default {
   name: 'HabitApp',
-  emits: [ 'update-habit', 'delete-habit' ],
+  emits: [ 'check-habit', 'update-habit', 'delete-habit' ],
   props: {
     habits: {
       type: Array,
     }
   },
+  data() {
+    return {
+      editIndex: null
+    }
+  },
   methods: {
     onCheckChange(habit, checked) {
-      this.$emit('update-habit', { ...habit, checked });
+      this.$emit('check-habit', { ...habit, checked });
+    },
+    startEdit(index) {
+      this.editIndex = index;
+    },
+    saveEdit(habit) {
+      this.$emit('update-habit', { ...habit });
+      this.editIndex = null;
+    },
+    cancelEdit() {
+      this.editIndex = null;
     },
     onDeleteHabit(habit) {
       this.$emit('delete-habit', habit);

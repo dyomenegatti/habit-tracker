@@ -27,6 +27,7 @@
     <div class="mt-4">
       <Habit 
         :habits="habits"
+        @check-habit="saveHabit"
         @update-habit="saveHabit"
         @delete-habit="deleteHabit"
       />
