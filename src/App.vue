@@ -5,8 +5,11 @@
         <v-col cols="12" md="6">
           <Header />
           <div class="d-flex flex-column ga-6">
-            <Week />
-            <List />
+            <Week 
+              :selectedDate="selectedDate"
+              @date-changed="selectedDate = $event"
+            />
+            <List :selectedDate="selectedDate" />
           </div>
         </v-col>
       </v-row>
@@ -22,8 +25,10 @@ import List from './components/List.vue';
 export default {
   name: 'App',
   components: { Header, Week, List, },
-  data: () => ({
-    //
-  }),
+  data() {
+    return {
+      selectedDate: new Date(),
+    }
+  },
 };
 </script>

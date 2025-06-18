@@ -11,7 +11,7 @@
         <div class="text-subtitle-2">In progress today ({{ inProgress }})</div>
       </v-col>
       <v-col cols="3">
-        <div class="d-flex justify-end" v-if="!showNewHabit">
+        <div class="d-flex justify-end">
           <v-btn icon density="comfortable" color="white" class="custom-btn-bg" @click="showInputNewHabit">
             <v-icon>mdi-plus</v-icon>
           </v-btn>
@@ -19,10 +19,10 @@
       </v-col>
     </v-row>
 
-    <new-habit 
+    <New-habit 
       :showNewHabit="showNewHabit"
       @new-habit="handleNewHabit"
-    ></new-habit>
+    ></New-habit>
 
     <div class="mt-4">
       <Habit 
@@ -41,7 +41,6 @@
         Você ainda não adicionou nenhum hábito!
       </div>
     </div>
-
   </v-sheet>
 </template>
 
@@ -53,6 +52,12 @@ import NewHabit from './NewHabit.vue';
 export default {
   name: 'ListApp',
   components: { Habit, NewHabit, },
+  props: {
+    selectedDate: {
+      type: Date,
+      required: true
+    }
+  },
   data() {
     return {
       showNewHabit: false,
@@ -66,15 +71,17 @@ export default {
       'allHabits',
     ]),
     habits() {
-      return this.allHabits;
+      return this.allHabits.filter(habit => {
+        const habitStart = new Date(habit.dataNow);
+        const diffInDays = Math.floor((this.selectedDate - habitStart) / (1000 * 60 * 60 * 24));
+        return diffInDays >= 0 && diffInDays < habit.frequency;
+      });
     },
     emptyHabits() {
-      return Array.isArray(this.habits) && this.habits.length === 0;
+      return this.habits.length === 0;
     },
     inProgress() {
-      const habitInProgress = this.habits.filter(item => item.checked === false).length
-      
-      return habitInProgress;
+      return this.habits.filter(h => !h.checked).length;
     }
   },
   methods: {

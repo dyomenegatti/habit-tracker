@@ -1,44 +1,67 @@
 <template>
-    <v-row v-if="showNewHabit" justify="center" align="start">
-        <v-col cols="2" class="mt-1">
-            <SelectIcon
-                @selected-icon="onSelectedIcon"
-            ></SelectIcon>
-        </v-col>
-        <v-col cols="8" class="pa-0">
+  <v-dialog v-model="localShow" max-width="500" scrollable>
+    <v-card elevation="2">
+      <v-card-title class="d-flex justify-space-between align-center">
+        <span class="text-h6">New Habit</span>
+        <v-btn icon @click="closeDialog">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </v-card-title>
+
+      <v-card-subtitle>
+        Add details about the habit you want to track. Click save when you're done.
+      </v-card-subtitle>
+
+      <v-card-text>
+        <v-alert
+            v-if="alertMessage"
+            :type="alertType"
+            dismissible
+            dense
+            class="mb-4"
+        >
+            {{ alertMessage }}
+        </v-alert>
+
+        <v-row align="center">
+          <v-col cols="2" class="mb-8">
+            <SelectIcon @selected-icon="onSelectedIcon" />
+          </v-col>
+          <v-col cols="10">
             <v-text-field
-                class="mt-4"
+                outlined
                 label="New Habit"
                 placeholder="Type your new habit"
                 variant="plain"
                 v-model="habitDescription"
-            ></v-text-field>
-            <v-row>
-                <v-col cols="6">
-                    <v-text-field
-                        label="Data Início"
-                        :placeholder="dateNow"
-                        :v-model="habitStartDate"
-                        :min="dateNow"
-                        type="date"
-                        persistent-hint
-                    ></v-text-field>
-                </v-col>
-                <v-col cols="6">
-                    <v-select
-                        label="Frequência (dias)"
-                        :items="frequencyOptions"
-                        v-model="habitFrequency"
-                    ></v-select>
-                </v-col>
-            </v-row>
-        </v-col>
-        <v-col cols="2" class="mt-3">
-            <v-btn icon density="comfortable" class="custom-btn-bg" @click="handleNewHabit">
-                <v-icon>mdi-plus</v-icon>
-            </v-btn>
-        </v-col>
-    </v-row>
+            />
+          </v-col>
+        </v-row>
+
+        <v-text-field
+          label="Data Início"
+          :placeholder="dateNow"
+          v-model="habitStartDate"
+          :min="dateNow"
+          type="date"
+          persistent-hint
+          outlined
+        />
+
+        <v-select
+          label="Frequência (dias)"
+          :items="frequencyOptions"
+          v-model="habitFrequency"
+          outlined
+        />
+      </v-card-text>
+
+      <v-card-actions class="justify-end">
+        <v-btn text @click="closeDialog">Cancel</v-btn>
+        <v-btn color="primary" @click="handleNewHabit">Save</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
@@ -66,10 +89,23 @@ export default {
     },
     data() {
         return {
+            localShow: this.showNewHabit,
             habitDescription: '',
             habitIcone: '',
             habitStartDate: getTodayDate(),
-            habitFrequency: 1
+            habitFrequency: 1,
+            alertMessage: '',
+            alertType: 'success'
+        }
+    },
+    watch: {
+        showNewHabit(val) {
+            this.localShow = val;
+        },
+        localShow(val) {
+            if(!val) {
+                this.$emit('new-habit');
+            }
         }
     },
     computed: {
@@ -88,23 +124,42 @@ export default {
             this.habitIcone = value;
         },
         handleNewHabit() {
-            if(this.habitStartDate < this.dateNow) {
-                alert("A data de início não pode ser anterior ao dia atual!");
-                return;
-            }
-
-            this.saveHabit({
-                name: this.habitDescription,
-                icon: this.habitIcone || 'mdi-water',
-                checked: false,
-                dataNow: this.habitStartDate,
-                frequency: this.habitFrequency
-            });
-            this.$emit('new-habit');
-            this.habitDescription = '';
-            this.habitStartDate = this.dateNow;
-            this.habitFrequency = 1;
+        if (this.habitDescription === '') {
+            this.showAlert('Descreva o hábito antes de salvar.', 'error');
+            return;
         }
+
+        if (this.habitStartDate < this.dateNow) {
+            this.showAlert('A data de início não pode ser anterior ao dia atual!', 'error');
+            return;
+        }
+
+        this.saveHabit({
+            name: this.habitDescription,
+            icon: this.habitIcone || 'mdi-water',
+            checked: false,
+            dataNow: this.habitStartDate,
+            frequency: this.habitFrequency
+        });
+
+        this.showAlert('Hábito salvo com sucesso!', 'success');
+        
+        this.$emit('new-habit');
+        this.habitDescription = '';
+        this.habitStartDate = this.dateNow;
+        this.habitFrequency = 1;
+        },
+        closeDialog() {
+            this.localShow = false;
+        },
+        showAlert(message, type = 'success') {
+            this.alertMessage = message;
+            this.alertType = type;
+
+            setTimeout(() => {
+                this.alertMessage = '';
+            }, 3000);
+        },
     },
 }
 </script>

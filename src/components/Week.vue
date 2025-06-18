@@ -4,6 +4,7 @@
       v-model="selectedDate"
       show-arrows
       class="d-flex"
+      :active="currentDateIndex"
     >
       <v-slide-item
         v-for="(day, index) in days"
@@ -20,14 +21,12 @@
         >
           <div class="d-flex flex-column">
             <div class="text-caption">{{ day.weekday }}</div>
-            <v-progress-circular color="accent" model-value="80">
               <span
                 class="progress-text"
                 :class="{ 'selected-text': selectedDate && selectedDate.toDateString() === day.date.toDateString() }"
               >
                 {{ day.date.getDate().toString().padStart(2, '0') }}
               </span>
-            </v-progress-circular>
           </div>
         </v-chip>
       </v-slide-item>
@@ -39,19 +38,35 @@
 export default {
   name: 'WeekApp',
   data() {
-    const today = new Date();
     return {
-      selectedDate: today,
-      days: this.generateDates(),
+      selectedDate: null,
+      days: [],
     }
+  },
+  computed: {
+    currentDateIndex() {
+      return this.days.findIndex(
+        d => d.date.toDateString() === this.selectedDate?.toDateString()
+      );
+    }
+  },
+  created() {
+    const days = this.generateDates();
+    const today = new Date();
+    this.days = days;
+    
+    const todayObj = days.find(d => d.date.toDateString() === today.toDateString());
+    this.selectedDate = todayObj ? todayObj.date : days[0]?.date;
   },
   methods: {
     generateDates() {
       const today = new Date();
+      const year = today.getFullYear();
+      const month = today.getMonth(); 
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
       const days = [];
-      for (let i = -2; i <= 10; i++) {
-        const date = new Date();
-        date.setDate(today.getDate() + i);
+      for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(year, month, day);
         const weekday = date.toLocaleDateString('en-US', { weekday: 'short' });
         days.push({ date, weekday });
       }
@@ -59,6 +74,7 @@ export default {
     },
     selectDate(date) {
       this.selectedDate = date;
+      this.$emit('date-changed', date);
     }
   },
 }
