@@ -2,7 +2,7 @@
   <v-sheet class="pa-4 mt-2" rounded="xl" elevation="2">
     <v-row>
       <v-col cols="12" md="6">
-        <div class="text-h6 font-weight-medium">Your habits</div>
+        <div class="text-h6 font-weight-medium" data-test="list_title">Your habits</div>
       </v-col>
     </v-row>
 
