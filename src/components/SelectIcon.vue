@@ -7,7 +7,7 @@
       <v-dialog v-model="dialog" max-width="400px" scrollable>
         <v-card>
           <v-card-title>
-            <span class="headline">Selecionar ícone</span>
+            <span class="headline">Select icon</span>
             <v-spacer />
             <v-btn icon @click="dialog = false">
               <v-icon>mdi-close</v-icon>

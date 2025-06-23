@@ -39,7 +39,7 @@
         </v-row>
 
         <v-text-field
-          label="Data Início"
+          label="Start Date"
           :placeholder="dateNow"
           v-model="habitStartDate"
           :min="dateNow"
@@ -49,7 +49,7 @@
         />
 
         <v-select
-          label="Frequência (dias)"
+          label="Frequency (days)"
           :items="frequencyOptions"
           v-model="habitFrequency"
           outlined
@@ -125,12 +125,12 @@ export default {
         },
         handleNewHabit() {
         if (this.habitDescription === '') {
-            this.showAlert('Descreva o hábito antes de salvar.', 'error');
+            this.showAlert('Describe the habit before saving.', 'error');
             return;
         }
 
         if (this.habitStartDate < this.dateNow) {
-            this.showAlert('A data de início não pode ser anterior ao dia atual!', 'error');
+            this.showAlert('The start date cannot be earlier than the current day!', 'error');
             return;
         }
 
@@ -142,7 +142,7 @@ export default {
             frequency: this.habitFrequency
         });
 
-        this.showAlert('Hábito salvo com sucesso!', 'success');
+        this.showAlert('Habit saved successfully!', 'success');
         
         this.$emit('new-habit');
         this.habitDescription = '';

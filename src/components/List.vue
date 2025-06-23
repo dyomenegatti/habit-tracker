@@ -27,7 +27,7 @@
     <div class="mt-4">
       <Habit 
         :habits="habits"
-        @check-habit="saveHabit"
+        @check-habit="onCheckHabit"
         @update-habit="saveHabit"
         @delete-habit="deleteHabit"
       />
@@ -38,7 +38,7 @@
         align="center" 
         class="font-weight-thin font-italic"
       >
-        Você ainda não adicionou nenhum hábito!
+        You haven't added any habits yet!
       </div>
     </div>
   </v-sheet>
@@ -69,13 +69,19 @@ export default {
   computed: {
     ...mapGetters([
       'allHabits',
+      'isHabitChecked',
     ]),
     habits() {
-      return this.allHabits.filter(habit => {
-        const habitStart = new Date(habit.dataNow);
-        const diffInDays = Math.floor((this.selectedDate - habitStart) / (1000 * 60 * 60 * 24));
-        return diffInDays >= 0 && diffInDays < habit.frequency;
-      });
+      return this.allHabits
+        .filter(habit => {
+          const habitStart = new Date(habit.dataNow);
+          const diffInDays = Math.floor((this.selectedDate - habitStart) / (1000 * 60 * 60 * 24));
+          return diffInDays >= 0 && diffInDays < habit.frequency;
+        })
+        .map(habit => ({
+          ...habit,
+          checked: this.isHabitChecked(habit.id, this.selectedDate.toISOString().slice(0, 10))
+        }));
     },
     emptyHabits() {
       return this.habits.length === 0;
@@ -97,7 +103,14 @@ export default {
     },
     deleteHabit(habit) {
       this.$store.dispatch('deleteHabit', habit.id);
-    }
+    },
+    onCheckHabit({ id, checked }) {
+      this.$store.dispatch('setHabitCheck', {
+        habitId: id,
+        date: this.selectedDate.toISOString().slice(0, 10),
+        value: checked
+      });
+    },
   },
 }
 </script>
