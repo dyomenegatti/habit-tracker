@@ -28,7 +28,7 @@
       <Habit 
         :habits="habits"
         @check-habit="onCheckHabit"
-        @update-habit="saveHabit"
+        @update-habit="onUpdateHabit"
         @delete-habit="deleteHabit"
       />
 
@@ -70,18 +70,30 @@ export default {
     ...mapGetters([
       'allHabits',
       'isHabitChecked',
+      'getUniqueHabitGroups',
     ]),
     habits() {
-      return this.allHabits
-        .filter(habit => {
-          const habitStart = new Date(habit.dataNow);
-          const diffInDays = Math.floor((this.selectedDate - habitStart) / (1000 * 60 * 60 * 24));
-          return diffInDays >= 0 && diffInDays < habit.frequency;
+      return this.getUniqueHabitGroups
+        .filter(group => {
+          return group.instances.some(habit => {
+            const selectedDateStr = this.selectedDate.toISOString().slice(0, 10);
+            return habit.date === selectedDateStr;
+          });
         })
-        .map(habit => ({
-          ...habit,
-          checked: this.isHabitChecked(habit.id, this.selectedDate.toISOString().slice(0, 10))
-        }));
+        .map(group => {
+          const todayInstance = group.instances.find(habit => {
+            const selectedDateStr = this.selectedDate.toISOString().slice(0, 10);
+            return habit.date === selectedDateStr;
+          });
+          
+          return {
+            ...group,
+            id: todayInstance.id, 
+            checked: this.isHabitChecked(todayInstance.id, this.selectedDate.toISOString().slice(0, 10)),
+            dayNumber: todayInstance.dayNumber,
+            totalDays: group.frequency
+          };
+        });
     },
     emptyHabits() {
       return this.habits.length === 0;
@@ -94,6 +106,8 @@ export default {
     ...mapActions([
       'loadHabits',
       'saveHabit',
+      'updateHabitGroup',
+      'deleteHabitGroup',
     ]),
     showInputNewHabit() {
       this.showNewHabit = true;
@@ -102,14 +116,28 @@ export default {
       this.showNewHabit = false;
     },
     deleteHabit(habit) {
-      this.$store.dispatch('deleteHabit', habit.id);
+      if (habit.groupId) {
+        this.$store.dispatch('deleteHabitGroup', habit.groupId);
+      } else {
+        this.$store.dispatch('deleteHabit', habit.id);
+      }
     },
     onCheckHabit({ id, checked }) {
       this.$store.dispatch('setHabitCheck', {
-        habitId: id,
+        habitId: id, 
         date: this.selectedDate.toISOString().slice(0, 10),
         value: checked
       });
+    },
+    onUpdateHabit(data) {
+      if (data.type === 'group') {
+        this.$store.dispatch('updateHabitGroup', {
+          groupId: data.groupId,
+          updatedData: data.data
+        });
+      } else {
+        this.$store.dispatch('saveHabit', data.habit);
+      }
     },
   },
 }

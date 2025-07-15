@@ -4,7 +4,12 @@
       <v-col cols="9">
         <div class="d-flex" justify="center" align="center">
           <v-icon color="primary">{{ habit.icon }}</v-icon>
-          <span class="body-1 pl-2" v-if="editIndex !== index">{{ habit.name }}</span>
+          <div class="pl-2" v-if="editIndex !== index">
+            <span class="body-1">{{ habit.name }}</span>
+            <div class="caption text--secondary" v-if="habit.totalDays > 1">
+              Dia {{ habit.dayNumber }} de {{ habit.totalDays }}
+            </div>
+          </div>
           <v-text-field
             class="ml-4"
             variant="plain"
@@ -50,13 +55,21 @@ export default {
   },
   methods: {
     onCheckChange(habit, checked) {
-      this.$emit('check-habit', { ...habit, checked });
+      this.$emit('check-habit', { id: habit.id, checked });
     },
     startEdit(index) {
       this.editIndex = index;
     },
     saveEdit(habit) {
-      this.$emit('update-habit', { ...habit });
+      if (habit.groupId) {
+        this.$emit('update-habit', { 
+          type: 'group',
+          groupId: habit.groupId, 
+          data: { name: habit.name }
+        });
+      } else {
+        this.$emit('update-habit', { type: 'single', habit });
+      }
       this.editIndex = null;
     },
     cancelEdit() {

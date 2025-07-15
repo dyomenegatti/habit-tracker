@@ -138,7 +138,7 @@ export default {
             name: this.habitDescription,
             icon: this.habitIcone || 'mdi-water',
             checked: false,
-            dataNow: this.habitStartDate,
+            startDate: this.habitStartDate, 
             frequency: this.habitFrequency
         });
 
