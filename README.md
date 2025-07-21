@@ -1,29 +1,44 @@
-# habit-tracker
+# Habit Tracker
 
-## Project setup
+## Overview
+A simple project to track your habits.
+
+## Features
+- Add new habits.
+- View a list of all habits.
+- Edit or delete habits.
+- Mark habits as completed.
+- View progress of completed habits for the day.
+- Add habits by choosing a name, icon, start date, and frequency.
+
+## Technologies Used
+- Vue.js: JavaScript framework for building user interfaces.
+- Vuex: State management library for Vue.js.
+- LocalStorage: Browser storage for persisting data.
+- Vuetify: UI design framework.
+
+## Installation
+1. Clone the repository:
+```bash
+git clone <REPOSITORY_URL>
 ```
+2. Install dependencies:
+```bash
 npm install
 ```
-
-### Compiles and hot-reloads for development
-```
+3. Run the development server:
+```bash
 npm run serve
 ```
-
-### Compiles and minifies for production
-```
+4. Build for production:
+```bash
 npm run build
 ```
 
-### Run your unit tests
-```
-npm run test:unit
-```
+## Demo
 
-### Lints and fixes files
-```
-npm run lint
-```
+![Habit Tracker Demo](src/assets/habit-tracker.gif)
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+---
+
+*Code by [Dyovana Menegatti](https://www.linkedin.com/in/dyomenegatti/).*
