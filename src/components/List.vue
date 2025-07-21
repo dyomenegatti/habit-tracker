@@ -12,7 +12,14 @@
       </v-col>
       <v-col cols="3">
         <div class="d-flex justify-end">
-          <v-btn icon density="comfortable" color="white" class="custom-btn-bg" @click="showInputNewHabit">
+          <v-btn 
+            icon 
+            density="comfortable" 
+            color="white" 
+            class="custom-btn-bg" 
+            @click="toggleNewHabitForm"
+            aria-label="Add new habit"
+          >
             <v-icon>mdi-plus</v-icon>
           </v-btn>
         </div>
@@ -30,16 +37,16 @@
         @check-habit="onCheckHabit"
         @update-habit="onUpdateHabit"
         @delete-habit="deleteHabit"
-      />
+    />
 
-      <div  
-        v-if="emptyHabits"
-        justify="center" 
-        align="center" 
-        class="font-weight-thin font-italic"
-      >
-        You haven't added any habits yet!
-      </div>
+    <v-row v-if="emptyHabits" justify="center" align="center">
+      <v-col cols="12" class="text-center">
+        <v-icon large class="mb-2">mdi-emoticon-sad-outline</v-icon>
+        <div class="font-italic font-weight-thin">
+          You haven't added any habits yet!
+        </div>
+      </v-col>
+    </v-row>
     </div>
   </v-sheet>
 </template>
@@ -50,7 +57,7 @@ import Habit from './Habit.vue';
 import NewHabit from './NewHabit.vue';
 
 export default {
-  name: 'ListApp',
+  name: 'HabitsPanel',
   components: { Habit, NewHabit, },
   props: {
     selectedDate: {
@@ -72,24 +79,21 @@ export default {
       'isHabitChecked',
       'getUniqueHabitGroups',
     ]),
+    selectedDateStr() {
+      return this.selectedDate.toISOString().slice(0, 10);
+    },
     habits() {
       return this.getUniqueHabitGroups
-        .filter(group => {
-          return group.instances.some(habit => {
-            const selectedDateStr = this.selectedDate.toISOString().slice(0, 10);
-            return habit.date === selectedDateStr;
-          });
-        })
+        .filter(group =>
+          group.instances.some(habit => habit.date === this.selectedDateStr)
+        )
         .map(group => {
-          const todayInstance = group.instances.find(habit => {
-            const selectedDateStr = this.selectedDate.toISOString().slice(0, 10);
-            return habit.date === selectedDateStr;
-          });
-          
+          const todayInstance = group.instances.find(habit => habit.date === this.selectedDateStr);
+
           return {
             ...group,
-            id: todayInstance.id, 
-            checked: this.isHabitChecked(todayInstance.id, this.selectedDate.toISOString().slice(0, 10)),
+            id: todayInstance.id,
+            checked: this.isHabitChecked(todayInstance.id, this.selectedDateStr),
             dayNumber: todayInstance.dayNumber,
             totalDays: group.frequency
           };
@@ -109,7 +113,7 @@ export default {
       'updateHabitGroup',
       'deleteHabitGroup',
     ]),
-    showInputNewHabit() {
+    toggleNewHabitForm() {
       this.showNewHabit = true;
     },
     handleNewHabit() {

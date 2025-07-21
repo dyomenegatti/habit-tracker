@@ -1,8 +1,8 @@
 <template>
   <v-sheet class="pa-2" rounded >
-    <v-row v-for="(habit, index) in habits" :key="index" class="row-list mb-2">
+    <v-row v-for="(habit, index) in habits" :key="habit.id" class="row-list mb-2">
       <v-col cols="9">
-        <div class="d-flex" justify="center" align="center">
+        <div class="d-flex align-center">
           <v-icon color="primary">{{ habit.icon }}</v-icon>
           <div class="pl-2" v-if="editIndex !== index">
             <span class="body-1">{{ habit.name }}</span>
@@ -13,7 +13,7 @@
           <v-text-field
             class="ml-4"
             variant="plain"
-            v-model="habit.name"
+            v-model="editName"
             v-if="editIndex === index"
             @keydown.enter="saveEdit(habit, index)"
             @blur="cancelEdit"
@@ -31,8 +31,16 @@
             :input-value="habit.checked"
             @change="onCheckChange(habit, $event)"
           ></v-checkbox>
-          <v-icon @click="startEdit(index)">mdi-pencil</v-icon>
-          <v-icon @click="onDeleteHabit(habit)">mdi-delete</v-icon>
+          <v-icon 
+            role="button"
+            aria-label="Editar hábito" 
+            @click="startEdit(index)"
+          >mdi-pencil</v-icon>
+          <v-icon 
+            role="button"
+            aria-label="Deletar hábito"
+            @click="onDeleteHabit(habit)"
+          >mdi-delete</v-icon>
         </div>
       </v-col>
     </v-row>
@@ -46,11 +54,13 @@ export default {
   props: {
     habits: {
       type: Array,
+      required: true,
     }
   },
   data() {
     return {
-      editIndex: null
+      editIndex: null,
+      editName: ''
     }
   },
   methods: {
@@ -59,21 +69,26 @@ export default {
     },
     startEdit(index) {
       this.editIndex = index;
+      this.editName = this.habits[index].name;
     },
     saveEdit(habit) {
-      if (habit.groupId) {
-        this.$emit('update-habit', { 
-          type: 'group',
-          groupId: habit.groupId, 
-          data: { name: habit.name }
-        });
-      } else {
-        this.$emit('update-habit', { type: 'single', habit });
-      }
+      const updatedName = this.editName.trim();
+      if (!updatedName) return;
+
+      const habitCopy = { ...habit, name: updatedName };
+
+      this.$emit('update-habit', habit.groupId ? {
+        type: 'group',
+        groupId: habit.groupId,
+        data: { name: updatedName }
+      } : { type: 'single', habit: habitCopy });
+
       this.editIndex = null;
+      this.editName = '';
     },
     cancelEdit() {
       this.editIndex = null;
+      this.editName = '';
     },
     onDeleteHabit(habit) {
       this.$emit('delete-habit', habit);

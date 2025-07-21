@@ -39,30 +39,34 @@ export default new Vuex.Store({
   mutations: {
     SET_HABITS(state, habits) {
       state.habits = habits;
+      localStorage.setItem('habits', JSON.stringify(state.habits));
     },
     ADD_HABIT(state, habit) {
       state.habits.push(habit);
+      localStorage.setItem('habits', JSON.stringify(state.habits));
     },
     UPDATE_HABIT(state, updatedHabit) {
       const index = state.habits.findIndex(item => item.id === updatedHabit.id);
       if (index !== -1) {
         Vue.set(state.habits, index, updatedHabit);
+        localStorage.setItem('habits', JSON.stringify(state.habits));
       }
     },
     DELETE_HABIT(state, id) {
       state.habits = state.habits.filter(item => item.id !== id);
+      localStorage.setItem('habits', JSON.stringify(state.habits));
     },
     DELETE_HABIT_GROUP(state, groupId) {
-      const habitsToDelete = state.habits.filter(item => item.groupId === groupId);
-      
-      habitsToDelete.forEach(habit => {
-        if (state.habitChecks[habit.id]) {
-          delete state.habitChecks[habit.id];
+      state.habits = state.habits.filter(item => {
+        if (item.groupId === groupId) {
+          if (state.habitChecks[item.id]) {
+            Vue.delete(state.habitChecks, item.id);
+          }
+          return false;
         }
+        return true;
       });
-      
-      state.habits = state.habits.filter(item => item.groupId !== groupId);
-      
+      localStorage.setItem('habits', JSON.stringify(state.habits));
       localStorage.setItem('habitChecks', JSON.stringify(state.habitChecks));
     },
     SET_HABIT_CHECK(state, { habitId, date, value }) {
@@ -74,12 +78,14 @@ export default new Vuex.Store({
     },
     SET_HABIT_CHECKS(state, habitChecks) {
       state.habitChecks = habitChecks;
+      localStorage.setItem('habitChecks', JSON.stringify(state.habitChecks));
     },
   },
   actions: {
     loadHabits({ commit }) {
       const habits = JSON.parse(localStorage.getItem('habits') || '[]');
       commit('SET_HABITS', habits);
+
       const habitChecks = JSON.parse(localStorage.getItem('habitChecks') || '{}');
       commit('SET_HABIT_CHECKS', habitChecks);
     },
@@ -87,81 +93,68 @@ export default new Vuex.Store({
       commit('SET_HABIT_CHECK', { habitId, date, value });
     },
     saveHabit({ commit, state }, habit) {
-      const index = state.habits.findIndex(item => item.id === habit.id);
-      if (index !== -1) {
-        const habitToUpdate = state.habits[index];
-        const groupHabits = state.habits.filter(h => h.groupId === habitToUpdate.groupId);
-        
+      if (habit.id) {
+        // Atualiza todas as instâncias do grupo do hábito
+        const groupHabits = state.habits.filter(h => h.groupId === habit.groupId);
         groupHabits.forEach(groupHabit => {
           const updatedHabit = { 
-            ...habit, 
-            id: groupHabit.id, 
+            ...groupHabit,
+            ...habit,
+            id: groupHabit.id, // mantém id original da instância
             groupId: groupHabit.groupId,
-            date: groupHabit.date 
+            date: groupHabit.date,
+            dayNumber: groupHabit.dayNumber
           };
           commit('UPDATE_HABIT', updatedHabit);
         });
       } else {
-        let lastId = parseInt(localStorage.getItem('lastHabitId') || '0', 10);
-        let lastGroupId = parseInt(localStorage.getItem('lastGroupId') || '0', 10);
-        
-        const groupId = lastGroupId + 1;
-        localStorage.setItem('lastGroupId', groupId);
-        
+        // Cria novo grupo e instâncias de hábitos
+        const lastId = Number(localStorage.getItem('lastHabitId') || 0);
+        const lastGroupId = Number(localStorage.getItem('lastGroupId') || 0);
+        const newGroupId = lastGroupId + 1;
+        localStorage.setItem('lastGroupId', newGroupId);
+
         const startDate = new Date(habit.startDate || new Date());
-        const frequency = parseInt(habit.frequency || 1);
-        
+        const frequency = Number(habit.frequency) || 1;
+
         for (let i = 0; i < frequency; i++) {
           const habitDate = new Date(startDate);
           habitDate.setDate(startDate.getDate() + i);
-          
+
           const habitInstance = {
             ...habit,
             id: lastId + 1 + i,
-            groupId: groupId,
-            date: habitDate.toISOString().split('T')[0], 
-            dayNumber: i + 1
+            groupId: newGroupId,
+            date: habitDate.toISOString().split('T')[0],
+            dayNumber: i + 1,
+            checked: false
           };
-          
+
           commit('ADD_HABIT', habitInstance);
         }
-        
         localStorage.setItem('lastHabitId', lastId + frequency);
       }
-      localStorage.setItem('habits', JSON.stringify(state.habits));
     },
-    deleteHabit({ commit, state }, id) {
+    deleteHabit({ commit }, id) {
       commit('DELETE_HABIT', id);
-      localStorage.setItem('habits', JSON.stringify(state.habits));
     },
-    deleteHabitGroup({ commit, state }, groupId) {
-      const habitsToDelete = state.habits.filter(habit => habit.groupId === groupId);
-      habitsToDelete.forEach(habit => {
-        if (state.habitChecks[habit.id]) {
-          delete state.habitChecks[habit.id];
-        }
-      });
-      
+    deleteHabitGroup({ commit }, groupId) {
       commit('DELETE_HABIT_GROUP', groupId);
-      localStorage.setItem('habits', JSON.stringify(state.habits));
-      localStorage.setItem('habitChecks', JSON.stringify(state.habitChecks));
     },
     updateHabitGroup({ commit, state }, { groupId, updatedData }) {
       const groupHabits = state.habits.filter(h => h.groupId === groupId);
-      
+
       groupHabits.forEach(habit => {
         const updatedHabit = { 
           ...habit,
           ...updatedData,
-          id: habit.id, 
-          groupId: habit.groupId, 
-          date: habit.date, 
-          dayNumber: habit.dayNumber 
+          id: habit.id,
+          groupId: habit.groupId,
+          date: habit.date,
+          dayNumber: habit.dayNumber
         };
         commit('UPDATE_HABIT', updatedHabit);
       });
-      
-      localStorage.setItem('habits', JSON.stringify(state.habits));
     },
   },
-})
+});

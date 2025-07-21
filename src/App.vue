@@ -9,7 +9,7 @@
               :selectedDate="selectedDate"
               @date-changed="selectedDate = $event"
             />
-            <List :selectedDate="selectedDate" />
+            <HabitsPanel :selectedDate="selectedDate" />
           </div>
         </v-col>
       </v-row>
@@ -20,11 +20,11 @@
 <script>
 import Header from './components/Header.vue';
 import Week from './components/Week.vue';
-import List from './components/List.vue';
+import HabitsPanel from './components/List.vue';
 
 export default {
   name: 'App',
-  components: { Header, Week, List, },
+  components: { Header, Week, HabitsPanel, },
   data() {
     return {
       selectedDate: new Date(),

@@ -3,7 +3,7 @@
     <v-card elevation="2">
       <v-card-title class="d-flex justify-space-between align-center">
         <span class="text-h6">New Habit</span>
-        <v-btn icon @click="closeDialog">
+        <v-btn icon @click="closeDialog" aria-label="Close dialog">
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-card-title>
@@ -40,7 +40,6 @@
 
         <v-text-field
           label="Start Date"
-          :placeholder="dateNow"
           v-model="habitStartDate"
           :min="dateNow"
           type="date"
@@ -81,85 +80,85 @@ export default {
     components: { SelectIcon },
     emits: ['new-habit'],
     props: {
-        showNewHabit: {
-            type: Boolean,
-            default: false,
-            required: true
-        }
+      showNewHabit: {
+        type: Boolean,
+        required: true
+      }
     },
     data() {
-        return {
-            localShow: this.showNewHabit,
-            habitDescription: '',
-            habitIcone: '',
-            habitStartDate: getTodayDate(),
-            habitFrequency: 1,
-            alertMessage: '',
-            alertType: 'success'
-        }
+      return {
+        localShow: this.showNewHabit,
+        habitDescription: '',
+        habitIcon: '',
+        habitStartDate: getTodayDate(),
+        habitFrequency: 1,
+        alertMessage: '',
+        alertType: 'success'
+      }
     },
     watch: {
-        showNewHabit(val) {
-            this.localShow = val;
-        },
-        localShow(val) {
-            if(!val) {
-                this.$emit('new-habit');
-            }
+      showNewHabit(val) {
+        this.localShow = val;
+      },
+      localShow(val) {
+        if(!val) {
+          this.$emit('new-habit');
         }
+      }
     },
     computed: {
-        dateNow() {
-            return getTodayDate();
-        },
-        frequencyOptions() {
-            return Array.from({ length: 31 }, (_, i) => i + 1);
-        }
+      dateNow() {
+        return getTodayDate();
+      },
+      frequencyOptions() {
+        return Array.from({ length: 31 }, (_, i) => i + 1);
+      }
     },
     methods: {
-        ...mapActions([
-            'saveHabit'
-        ]),
-        onSelectedIcon(value) {
-            this.habitIcone = value;
-        },
-        handleNewHabit() {
-        if (this.habitDescription === '') {
-            this.showAlert('Describe the habit before saving.', 'error');
-            return;
+      ...mapActions([
+        'saveHabit'
+      ]),
+      onSelectedIcon(value) {
+        this.habitIcon = value;
+      },
+      handleNewHabit() {
+        if (!this.habitDescription.trim()) {
+          return this.showAlert('Describe the habit before saving.', 'error');
         }
 
         if (this.habitStartDate < this.dateNow) {
-            this.showAlert('The start date cannot be earlier than the current day!', 'error');
-            return;
+          return this.showAlert('The start date cannot be earlier than the current day!', 'error');
         }
 
         this.saveHabit({
-            name: this.habitDescription,
-            icon: this.habitIcone || 'mdi-water',
-            checked: false,
-            startDate: this.habitStartDate, 
-            frequency: this.habitFrequency
+          name: this.habitDescription.trim(),
+          icon: this.habitIcon || 'mdi-water',
+          checked: false,
+          startDate: this.habitStartDate,
+          frequency: this.habitFrequency
         });
 
         this.showAlert('Habit saved successfully!', 'success');
-        
+        this.resetForm();
         this.$emit('new-habit');
+      },
+      closeDialog() {
+        this.localShow = false;
+      },
+      showAlert(message, type = 'success') {
+        this.alertMessage = message;
+        this.alertType = type;
+
+        setTimeout(() => {
+            this.alertMessage = '';
+        }, 3000);
+      },
+      resetForm() {
         this.habitDescription = '';
+        this.habitIcon = '';
         this.habitStartDate = this.dateNow;
         this.habitFrequency = 1;
-        },
-        closeDialog() {
-            this.localShow = false;
-        },
-        showAlert(message, type = 'success') {
-            this.alertMessage = message;
-            this.alertType = type;
-
-            setTimeout(() => {
-                this.alertMessage = '';
-            }, 3000);
-        },
+      }
     },
 }
 </script>

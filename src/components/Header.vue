@@ -1,8 +1,8 @@
 <template>
-  <v-row class="header d-flex flex-column pa-10">
-    <div class="text-h4 font-weight-medium">Hello!</div>
-    <div class="text-subtitle-1">Ready to power throught your habits?</div>
-  </v-row>
+  <v-sheet class="header d-flex flex-column pa-10">
+    <h1 class="text-h4 font-weight-medium">Hello!</h1>
+    <p class="text-subtitle-1">Ready to power through your habits?</p>
+  </v-sheet>
 </template>
 
 <script>
